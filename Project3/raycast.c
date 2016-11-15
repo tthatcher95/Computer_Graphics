@@ -6,7 +6,9 @@
 #include <stdio.h>
 #include <math.h>
 #include "VectorMath.h"
+#define max_depth 7
 
+static double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object** lights);
 static inline double sqr(double v) { return v * v; }
 
 static inline void normalize(double *v) {
@@ -137,7 +139,15 @@ void get_specular(double* total_specular_color, double* normal, double* light_di
   v3_mult(total_specular_color, object->specular_color, total_specular_color);
 } //*------------End Specular---------*//
 
-double* get_color(double* Ro, double* Rd, Object** objArray, Object** lights) {
+void get_reflection(double* reflected_color, double* reflect_object_normal[3], int depth, double* Ro, double* Rd, Object** objArray, Object** lights, double t){
+  double* reflected_object_vector[3];
+  double* new_Ro[3];
+
+  get_intersection(new_Ro, Rd, Ro, t);
+  reflection_vector(Rd, reflect_object_normal, reflected_object_vector);
+  reflected_color = get_color(depth - 1, new_Ro, reflect_object_normal, objArray, lights);
+}
+double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object** lights) {
   double t = 0;
   double* color = malloc(sizeof(double)*3);
 
@@ -210,6 +220,17 @@ double* get_color(double* Ro, double* Rd, Object** objArray, Object** lights) {
   }
   v3_add(color, total_diffuse_color, color);
   v3_add(color, total_specular_color, color);
+  if(depth <= 0) {
+    return color;
+  }
+
+  v3_scale(color, 1- (0.5 + 0), color);
+
+  double new_color[3];
+  get_reflection(new_color, reflect_object_normal, depth, Ro, Rd, objArray, lights);
+  v3_scale(new_color, 0.5, new_color);
+  v3_add(color, new_color, color);
+
   //printf("%lf %lf %lf\n", color[0], color[1], color[2]);
   return color;
 }
@@ -243,7 +264,7 @@ Pixel** make_scene(Object** objects, Object** lights, int height, int width) {
                       -(cy - (h / 2) + pixheight * (y + 0.5)), 1};
       normalize(Rd);
       //printf("Before\n");
-      color = get_color(Ro, Rd, objects, lights);
+      color = get_color(depth, Ro, Rd, objects, lights);
       //printf("After %d\n", y);
 
       Pixel* pix = malloc(sizeof(Pixel));
