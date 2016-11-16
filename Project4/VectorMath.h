@@ -1,3 +1,12 @@
+static inline double sqr(double v) { return v * v; }
+
+static inline void normalize(double* v) {
+  double len = sqrt(sqr(v[0]) + sqr(v[1]) + sqr(v[2]));
+  v[0] /= len;
+  v[1] /= len;
+  v[2] /= len;
+}
+
 static inline void v3_add(double* a, double* b, double* c) {
   c[0] = a[0] + b[0];
   c[1] = a[1] + b[1];
@@ -64,11 +73,10 @@ static inline void refraction_vector(double* Rd, double* normal, double* value, 
   v3_cross(a, normal, b);
   normalize(b);
   sin_phi = refrac_index*v3_dot(Rd, b);
-  cos_phi = sqrt(1 - sin_phi);
-  v3_scale(-cos_phi, normal, normal);
-  v3_scale(sin_phi, b, b);
+  cos_phi = sqrt(1 - sqr(sin_phi));
+  v3_scale(normal, -cos_phi, normal);
+  v3_scale(b, sin_phi, b);
   v3_add(b, normal, value);
-
 
 }
 

@@ -9,6 +9,9 @@ typedef struct {
   char *type;
   double* diffuse_color;
   double* specular_color;
+  double refractivity;
+  double reflectivity;
+  double refrac_index;
   union {
     struct { //1
       double width;

@@ -156,6 +156,9 @@ Object** read_scene(char* filename, Object** lights) {
       char* value = next_string(json);
 
       object = malloc(sizeof(Object));
+      object->refractivity = 0;
+      object->reflectivity = 0;
+      object->refrac_index = 1;
 
       if (strcmp(value, "camera") == 0) {
         object->kind = camera_kind;
@@ -200,7 +203,10 @@ Object** read_scene(char* filename, Object** lights) {
         (strcmp(key, "radial-a2") == 0) ||
         (strcmp(key, "radial-a1") == 0) ||
         (strcmp(key, "radial-a0") == 0) ||
-        (strcmp(key, "angular-a0") == 0)) {
+        (strcmp(key, "angular-a0") == 0)||
+        (strcmp(key, "refractivity") == 0) ||
+        (strcmp(key, "reflectivity") == 0) ||
+        (strcmp(key, "ior") == 0)) {
 	         double value = next_number(json);
 
           if(strcmp(key, "width") == 0) {
@@ -208,6 +214,15 @@ Object** read_scene(char* filename, Object** lights) {
 
         } else if(strcmp(key, "height") == 0) {
             object->camera.height = value;
+
+        } else if(strcmp(key, "reflectivity") == 0) {
+            object->reflectivity = value;
+
+        } else if(strcmp(key, "refractivity") == 0) {
+            object->refractivity = value;
+
+        } else if(strcmp(key, "ior") == 0) {
+            object->refrac_index = value;
 
         } else if(strcmp(key, "radius") == 0) {
             object->sphere.radius = value;
@@ -239,7 +254,7 @@ Object** read_scene(char* filename, Object** lights) {
             object->diffuse_color = value;
 
         } else if(strcmp(key, "direction") == 0) {
-            printf("Got direction damn\n");
+            //printf("Got direction damn\n");
             object->light.direction = value;
 
         } else if(strcmp(key, "specular_color") == 0) {

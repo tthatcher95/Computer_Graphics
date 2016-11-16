@@ -7,17 +7,10 @@
 #include <math.h>
 #include "VectorMath.h"
 #include <string.h>
-#define max_depth 1
+#define max_depth 2
 
 static double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object** lights);
-static inline double sqr(double v) { return v * v; }
 
-static inline void normalize(double *v) {
-  double len = sqrt(sqr(v[0]) + sqr(v[1]) + sqr(v[2]));
-  v[0] /= len;
-  v[1] /= len;
-  v[2] /= len;
-}
 
 double plane_intersection(double* Ro, double* Rd, Object* objIntersect) {
   double* norm = objIntersect->plane.normal;
@@ -33,7 +26,7 @@ double plane_intersection(double* Ro, double* Rd, Object* objIntersect) {
 
 }
 
-double sphere_intersection(double *Ro, double *Rd, Object* objIntersect) {
+double sphere_intersection(double* Ro, double* Rd, Object* objIntersect) {
 
   double r = objIntersect->sphere.radius;
   double* C = objIntersect->sphere.position;
@@ -146,17 +139,40 @@ void get_reflection(double** reflected_color, double* reflect_object_normal, int
   double reflected_object_vector[3];
   double new_Ro[3];
 
-  get_intersection(new_Ro, Rd, Ro, t - 0.00001);
+  get_intersection(new_Ro, Ro, Rd, t - 0.00001);
   reflection_vector(Rd, reflect_object_normal, reflected_object_vector);
   *reflected_color = get_color(depth - 1, new_Ro, reflected_object_vector, objArray, lights);
 }
 
 //Gets refraction(s) and then uses the index/value for later on.
-void get_refraction(double** refracted_color, double* refracted_object_normal, int depth, double* Ro, double* Rd, Object** objArray, Object** lights, double t) {
-  double reflected_object_vector[3];
-  double new_Ro[3];
-  get_intersection(new_Ro, Rd, Ro, t - 0.00001);
+void get_refraction(double refrac_index, double** refracted_color, double* refracted_object_normal, Object* hit_object, int depth, double* Ro, double* Rd, Object** objArray, Object** lights, double t) {
+  double new_Ro[3] = {0};
+  double new_Rd[3];
+  double current_t;
 
+  get_intersection(new_Ro, Ro, Rd, t + 0.00001);
+ //printf("%lf %lf %lf \n", new_Ro[0], new_Ro[1], new_Ro[2]);
+  refraction_vector(Rd, refracted_object_normal, new_Rd, refrac_index);
+
+  if(hit_object->kind == plane_kind) {
+  //printf("Before\n");
+  current_t = plane_intersection(new_Ro, new_Rd, hit_object);
+  //printf("After\n");
+  } else if(hit_object->kind == sphere_kind) {
+  //printf("Before\n") ;
+  current_t = sphere_intersection(new_Ro, new_Rd, hit_object);
+  //printf("After\n");
+  } else {
+  fprintf(stderr, "Unknown Encounter\n");
+  exit(1);
+} if(current_t != -1 && current_t != INFINITY) {
+    get_intersection(new_Ro, new_Ro, new_Rd, current_t + 0.00001);
+    v3_subtract(hit_object->sphere.position, new_Ro, refracted_object_normal);
+    normalize(refracted_object_normal);
+    refraction_vector(new_Rd, refracted_object_normal, new_Rd, 1/refrac_index);
+  }
+
+     *refracted_color = get_color(depth - 1, new_Ro, new_Rd, objArray, lights);
 }
 
 double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object** lights) {
@@ -212,10 +228,10 @@ double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object**
     //printf("%lf\n", t);
     v3_scale(current_light_direction, -1, light_object_intersection);
     if(lights[i]->light.direction != NULL) {
-      printf("id: %d\n", lights[i]->kind);
+      //printf("id: %d\n", lights[i]->kind);
       double dot_product = v3_dot(light_object_intersection, lights[i]->light.direction);
       if((dot_product) < sin(lights[i]->light.theta*M_PI/180)) {
-        printf("%lf %lf\n", dot_product, lights[i]->light.theta*M_PI/180);
+        //printf("%lf %lf\n", dot_product, lights[i]->light.theta*M_PI/180);
         continue;
       }
       v3_scale(current_light_color, pow(dot_product, lights[i]->light.a0), current_light_color);
@@ -238,11 +254,21 @@ double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object**
     return color;
   }
 
-  v3_scale(color, 1 - (0.5 + 0), color);
-
+  double refractivity = object->refractivity;
+  double reflectivity = object->reflectivity;
+  double refrac_index = object->refrac_index;
   double* new_color;
+
+  v3_scale(color, 1 - (reflectivity + refractivity), color);
+
+  //Reflection Time
   get_reflection(&new_color, normal, depth, Ro, Rd, objArray, lights, t);
-  v3_scale(new_color, 0.5, new_color);
+  v3_scale(new_color, reflectivity, new_color);
+  v3_add(color, new_color, color);
+
+  //Refraction Time`
+  get_refraction(refrac_index, &new_color, normal, object, depth, Ro, Rd, objArray, lights, t);
+  v3_scale(new_color, refractivity, new_color);
   v3_add(color, new_color, color);
 
   //printf("%lf %lf %lf\n", color[0], color[1], color[2]);
