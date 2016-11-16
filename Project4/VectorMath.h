@@ -53,6 +53,25 @@ static inline void reflection_vector(double* a, double* b, double* c) {
   v3_subtract(a, c, c);
 }
 
+static inline void refraction_vector(double* Rd, double* normal, double* value, double refrac_index) {
+  double a[3] = {0};
+  double b[3] = {0};
+  double sin_phi;
+  double cos_phi;
+
+  v3_cross(normal, Rd, a);
+  normalize(a);
+  v3_cross(a, normal, b);
+  normalize(b);
+  sin_phi = refrac_index*v3_dot(Rd, b);
+  cos_phi = sqrt(1 - sin_phi);
+  v3_scale(-cos_phi, normal, normal);
+  v3_scale(sin_phi, b, b);
+  v3_add(b, normal, value);
+
+
+}
+
 static inline double max_val(double a, double b) {
   if(a > b) {
     return a;

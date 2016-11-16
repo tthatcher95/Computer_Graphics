@@ -141,6 +141,7 @@ void get_specular(double* total_specular_color, double* normal, double* light_di
   v3_mult(total_specular_color, object->specular_color, total_specular_color);
 } //*------------End Specular---------*//
 
+//Gets reflection(s) of objects and then uses the value for color.
 void get_reflection(double** reflected_color, double* reflect_object_normal, int depth, double* Ro, double* Rd, Object** objArray, Object** lights, double t){
   double reflected_object_vector[3];
   double new_Ro[3];
@@ -148,6 +149,14 @@ void get_reflection(double** reflected_color, double* reflect_object_normal, int
   get_intersection(new_Ro, Rd, Ro, t - 0.00001);
   reflection_vector(Rd, reflect_object_normal, reflected_object_vector);
   *reflected_color = get_color(depth - 1, new_Ro, reflected_object_vector, objArray, lights);
+}
+
+//Gets refraction(s) and then uses the index/value for later on.
+void get_refraction(double** refracted_color, double* refracted_object_normal, int depth, double* Ro, double* Rd, Object** objArray, Object** lights, double t) {
+  double reflected_object_vector[3];
+  double new_Ro[3];
+  get_intersection(new_Ro, Rd, Ro, t - 0.00001);
+
 }
 
 double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object** lights) {
