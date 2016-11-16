@@ -168,6 +168,7 @@ Object** read_scene(char* filename, Object** lights) {
         objArray[index++] = object;
       } else if(strcmp(value, "light") == 0) {
         object->kind = light_kind;
+        object->light.direction = NULL;
         lights[lightindex++] = object;
       }
         else {
@@ -238,6 +239,7 @@ Object** read_scene(char* filename, Object** lights) {
             object->diffuse_color = value;
 
         } else if(strcmp(key, "direction") == 0) {
+            printf("Got direction damn\n");
             object->light.direction = value;
 
         } else if(strcmp(key, "specular_color") == 0) {

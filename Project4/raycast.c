@@ -6,7 +6,8 @@
 #include <stdio.h>
 #include <math.h>
 #include "VectorMath.h"
-#define max_depth 7
+#include <string.h>
+#define max_depth 1
 
 static double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object** lights);
 static inline double sqr(double v) { return v * v; }
@@ -24,6 +25,7 @@ double plane_intersection(double* Ro, double* Rd, Object* objIntersect) {
   double t;
   t = (norm[0]*Ro[0] + norm[1]*Ro[1] + norm[2]*Ro[2]) + pos[0] + pos[1] + pos[2];
   t = t/(norm[0]*Rd[0] + norm[1]*Rd[1] + norm[2]*Rd[2]);
+
   if(t < 0) {
     return -1;
   }
@@ -139,14 +141,15 @@ void get_specular(double* total_specular_color, double* normal, double* light_di
   v3_mult(total_specular_color, object->specular_color, total_specular_color);
 } //*------------End Specular---------*//
 
-void get_reflection(double* reflected_color, double* reflect_object_normal[3], int depth, double* Ro, double* Rd, Object** objArray, Object** lights, double t){
-  double* reflected_object_vector[3];
-  double* new_Ro[3];
+void get_reflection(double** reflected_color, double* reflect_object_normal, int depth, double* Ro, double* Rd, Object** objArray, Object** lights, double t){
+  double reflected_object_vector[3];
+  double new_Ro[3];
 
-  get_intersection(new_Ro, Rd, Ro, t);
+  get_intersection(new_Ro, Rd, Ro, t - 0.00001);
   reflection_vector(Rd, reflect_object_normal, reflected_object_vector);
-  reflected_color = get_color(depth - 1, new_Ro, reflect_object_normal, objArray, lights);
+  *reflected_color = get_color(depth - 1, new_Ro, reflected_object_vector, objArray, lights);
 }
+
 double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object** lights) {
   double t = 0;
   double* color = malloc(sizeof(double)*3);
@@ -200,6 +203,7 @@ double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object**
     //printf("%lf\n", t);
     v3_scale(current_light_direction, -1, light_object_intersection);
     if(lights[i]->light.direction != NULL) {
+      printf("id: %d\n", lights[i]->kind);
       double dot_product = v3_dot(light_object_intersection, lights[i]->light.direction);
       if((dot_product) < sin(lights[i]->light.theta*M_PI/180)) {
         printf("%lf %lf\n", dot_product, lights[i]->light.theta*M_PI/180);
@@ -220,14 +224,15 @@ double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object**
   }
   v3_add(color, total_diffuse_color, color);
   v3_add(color, total_specular_color, color);
+
   if(depth <= 0) {
     return color;
   }
 
-  v3_scale(color, 1- (0.5 + 0), color);
+  v3_scale(color, 1 - (0.5 + 0), color);
 
-  double new_color[3];
-  get_reflection(new_color, reflect_object_normal, depth, Ro, Rd, objArray, lights);
+  double* new_color;
+  get_reflection(&new_color, normal, depth, Ro, Rd, objArray, lights, t);
   v3_scale(new_color, 0.5, new_color);
   v3_add(color, new_color, color);
 
@@ -264,7 +269,7 @@ Pixel** make_scene(Object** objects, Object** lights, int height, int width) {
                       -(cy - (h / 2) + pixheight * (y + 0.5)), 1};
       normalize(Rd);
       //printf("Before\n");
-      color = get_color(depth, Ro, Rd, objects, lights);
+      color = get_color(max_depth, Ro, Rd, objects, lights);
       //printf("After %d\n", y);
 
       Pixel* pix = malloc(sizeof(Pixel));

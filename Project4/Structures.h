@@ -22,7 +22,7 @@ typedef struct {
       double* normal;
       double* position;
     } plane;
-      struct {
+      struct { //4
         double* position;
         double* direction;
         double theta;
