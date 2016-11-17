@@ -7,7 +7,7 @@
 #include <math.h>
 #include "VectorMath.h"
 #include <string.h>
-#define max_depth 2
+#define max_depth 7
 
 static double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object** lights);
 
@@ -147,11 +147,11 @@ void get_reflection(double** reflected_color, double* reflect_object_normal, int
 //Gets refraction(s) and then uses the index/value for later on.
 void get_refraction(double refrac_index, double** refracted_color, double* refracted_object_normal, Object* hit_object, int depth, double* Ro, double* Rd, Object** objArray, Object** lights, double t) {
   double new_Ro[3] = {0};
-  double new_Rd[3];
+  double new_Rd[3] = {0};
   double current_t;
 
   get_intersection(new_Ro, Ro, Rd, t + 0.00001);
- //printf("%lf %lf %lf \n", new_Ro[0], new_Ro[1], new_Ro[2]);
+  //printf("%lf %lf %lf \n", new_Ro[0], new_Ro[1], new_Ro[2]);
   refraction_vector(Rd, refracted_object_normal, new_Rd, refrac_index);
 
   if(hit_object->kind == plane_kind) {
@@ -169,7 +169,7 @@ void get_refraction(double refrac_index, double** refracted_color, double* refra
     get_intersection(new_Ro, new_Ro, new_Rd, current_t + 0.00001);
     v3_subtract(hit_object->sphere.position, new_Ro, refracted_object_normal);
     normalize(refracted_object_normal);
-    refraction_vector(new_Rd, refracted_object_normal, new_Rd, 1/refrac_index);
+    refraction_vector(new_Rd, refracted_object_normal, new_Rd, 1.0/refrac_index);
   }
 
      *refracted_color = get_color(depth - 1, new_Ro, new_Rd, objArray, lights);
@@ -247,8 +247,10 @@ double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object**
     v3_add(current_specular_color, total_specular_color, total_specular_color);
 
   }
+
   v3_add(color, total_diffuse_color, color);
   v3_add(color, total_specular_color, color);
+
 
   if(depth <= 0) {
     return color;
@@ -259,7 +261,9 @@ double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object**
   double refrac_index = object->refrac_index;
   double* new_color;
 
-  v3_scale(color, 1 - (reflectivity + refractivity), color);
+  v3_scale(color, 1.0 - (reflectivity + refractivity), color);
+
+
 
   //Reflection Time
   get_reflection(&new_color, normal, depth, Ro, Rd, objArray, lights, t);
