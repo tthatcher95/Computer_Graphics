@@ -7,7 +7,7 @@
 #include <math.h>
 #include "VectorMath.h"
 #include <string.h>
-#define max_depth 2
+#define max_depth 7
 
 static double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object** lights);
 
@@ -266,7 +266,7 @@ double* get_color(int depth, double* Ro, double* Rd, Object** objArray, Object**
   v3_scale(new_color, reflectivity, new_color);
   v3_add(color, new_color, color);
 
-  //Refraction Time`
+  //Refraction Time
   get_refraction(refrac_index, &new_color, normal, object, depth, Ro, Rd, objArray, lights, t);
   v3_scale(new_color, refractivity, new_color);
   v3_add(color, new_color, color);
