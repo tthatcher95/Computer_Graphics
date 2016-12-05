@@ -74,7 +74,7 @@ static inline void refraction_vector(double* Rd, double* normal, double* value, 
   normalize(b);
   sin_phi = refrac_index*v3_dot(Rd, b);
   cos_phi = sqrt(1 - sqr(sin_phi));
-  v3_scale(normal, -cos_phi, normal);
+  v3_scale(normal, -1*cos_phi, normal);
   v3_scale(b, sin_phi, b);
   v3_add(b, normal, value);
 

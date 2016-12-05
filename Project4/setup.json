@@ -17,8 +17,13 @@
 		"type": "sphere",
 		"diffuse_color": [0, 0, 1],
 		"specular_color": [1, 1, 1],
+<<<<<<< HEAD
 		"reflectivity": 0.5,
 		"refractivity": 0.5,
+=======
+		"reflectivity": 0,
+		"refractivity": 1.0,
+>>>>>>> ddfd8ef66745845fca0ff67b25ffab4b8b32a7a0
 		"ior": 1,
 		"position": [0, 0, 5],
 		"radius": 1
