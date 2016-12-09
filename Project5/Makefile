@@ -1,5 +1,5 @@
 all: texdemo.c
-	gcc -std=gnu99 texdemo.c -lglfw -lGL -o raycast -Wall -g -lm
+	gcc -std=gnu99 texdemo.c -lglfw -lGL -o ezview -Wall -g -lm
 
 clean:
-	rm -rf raycast *~
+	rm -rf ezview *~
