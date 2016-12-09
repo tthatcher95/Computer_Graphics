@@ -56,6 +56,15 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, 1);
       }
+    //Rotate by 30 Degrees (R)
+    if((key == GLFW_KEY_R) && (action == GLFW_PRESS)) {
+        mat4x4_rotate_Z(m, m, M_PI/6);
+    }
+
+    //Rotate by -30 Degrees (R)
+    if((key == GLFW_KEY_F) && (action == GLFW_PRESS)) {
+        mat4x4_rotate_Z(m, m, -M_PI/6);
+    }
 
 }
 
