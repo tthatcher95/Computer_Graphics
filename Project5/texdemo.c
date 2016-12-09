@@ -110,12 +110,48 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
     }
 
-    //Translate x-0.25 (Q)
+    //Translate x-0.25 (S)
     if((key == GLFW_KEY_S) && (action == GLFW_PRESS)) {
         mat4x4_identity(transform);
         mat4x4_translate(transform, 0, -0.25, 0);
         //printf("%lf" , transform[0][0]);
         mat4x4_mul(m, m, transform);
+
+    }
+
+    //Shear x-0.1 (Z)
+    if((key == GLFW_KEY_Z) && (action == GLFW_PRESS)) {
+        mat4x4_identity(transform);
+        transform[0][1] = 0.1;
+        //printf("%lf" , transform[0][0]);
+        mat4x4_mul(m, transform, m);
+
+    }
+
+    //Shear x+0.1 (C)
+    if((key == GLFW_KEY_C) && (action == GLFW_PRESS)) {
+        mat4x4_identity(transform);
+        transform[0][1] = -0.1;
+        //printf("%lf" , transform[0][0]);
+        mat4x4_mul(m, transform, m);
+
+    }
+
+    //Shear y-0.1 (A)
+    if((key == GLFW_KEY_A) && (action == GLFW_PRESS)) {
+      mat4x4_identity(transform);
+      transform[1][0] = 0.1;
+      //printf("%lf" , transform[0][0]);
+      mat4x4_mul(m, transform, m);
+
+    }
+
+    //Shear y+0.1 (D)
+    if((key == GLFW_KEY_D) && (action == GLFW_PRESS)) {
+      mat4x4_identity(transform);
+      transform[1][0] = -0.1;
+      //printf("%lf" , transform[0][0]);
+      mat4x4_mul(m, transform, m);
 
     }
 
