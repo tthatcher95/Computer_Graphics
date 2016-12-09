@@ -84,7 +84,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         mat4x4_mul(m, m, transform);
 
     }
-    //Translate x+1 (E)
+    //Translate x+0.25 (E)
     if((key == GLFW_KEY_E) && (action == GLFW_PRESS)) {
         mat4x4_identity(transform);
         mat4x4_translate(transform, 0.25, 0, 0);
@@ -413,7 +413,7 @@ int main(int argc, char* argv[])
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img_width, img_height, 0, GL_RGB,
 		 GL_UNSIGNED_BYTE, buffer);
-     printf("Afer\n");
+     //printf("Afer\n");
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texID);
     glUniform1i(tex_location, 0);
