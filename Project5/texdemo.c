@@ -61,7 +61,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         mat4x4_rotate_Z(m, m, M_PI/6);
     }
 
-    //Rotate by -30 Degrees (R)
+    //Rotate by -30 Degrees (F)
     if((key == GLFW_KEY_F) && (action == GLFW_PRESS)) {
         mat4x4_rotate_Z(m, m, -M_PI/6);
     }
@@ -80,6 +80,40 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         mat4x4_identity(transform);
         transform[0][0] = 0.5;
         transform[1][1] = 0.5;
+        //printf("%lf" , transform[0][0]);
+        mat4x4_mul(m, m, transform);
+
+    }
+    //Translate x+1 (E)
+    if((key == GLFW_KEY_E) && (action == GLFW_PRESS)) {
+        mat4x4_identity(transform);
+        mat4x4_translate(transform, 0.25, 0, 0);
+        //printf("%lf" , transform[0][0]);
+        mat4x4_mul(m, m, transform);
+
+    }
+    //Translate x-0.25 (Q)
+    if((key == GLFW_KEY_Q) && (action == GLFW_PRESS)) {
+        mat4x4_identity(transform);
+        mat4x4_translate(transform, -0.25, 0, 0);
+        //printf("%lf" , transform[0][0]);
+        mat4x4_mul(m, m, transform);
+
+    }
+
+    //Translate y + 0.25 (W)
+    if((key == GLFW_KEY_W) && (action == GLFW_PRESS)) {
+        mat4x4_identity(transform);
+        mat4x4_translate(transform, 0, 0.25, 0);
+        //printf("%lf" , transform[0][0]);
+        mat4x4_mul(m, m, transform);
+
+    }
+
+    //Translate x-0.25 (Q)
+    if((key == GLFW_KEY_S) && (action == GLFW_PRESS)) {
+        mat4x4_identity(transform);
+        mat4x4_translate(transform, 0, -0.25, 0);
         //printf("%lf" , transform[0][0]);
         mat4x4_mul(m, m, transform);
 
