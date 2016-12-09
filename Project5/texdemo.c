@@ -66,6 +66,25 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         mat4x4_rotate_Z(m, m, -M_PI/6);
     }
 
+    //Scale by 2 (+)
+    if((key == GLFW_KEY_EQUAL) && (action == GLFW_PRESS)) {
+        mat4x4_identity(transform);
+        transform[0][0] = 2;
+        transform[1][1] = 2;
+        //printf("%lf" , transform[0][0]);
+        mat4x4_mul(m, m, transform);
+
+    }
+    //Scale by 1/2 (-)
+    if((key == GLFW_KEY_MINUS) && (action == GLFW_PRESS)) {
+        mat4x4_identity(transform);
+        transform[0][0] = 0.5;
+        transform[1][1] = 0.5;
+        //printf("%lf" , transform[0][0]);
+        mat4x4_mul(m, m, transform);
+
+    }
+
 }
 
 void glCompileShaderOrDie(GLuint shader) {
